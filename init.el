@@ -199,3 +199,6 @@ With ARG, opens in in the current working directory"
 
 (use-package web-mode
   :defer t)
+
+(use-package odin-mode
+  :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode"))
