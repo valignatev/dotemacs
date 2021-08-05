@@ -25,8 +25,12 @@
 (setq-default indent-tabs-mode nil
               truncate-lines t)
 
+(defvar IS-WINDOWS (eq system-type 'windows-nt))
+
 (defvar font-name "Hack")
-(defvar font-size 13)
+(if IS-WINDOWS
+    (defvar font-size 13)
+  (defvar font-size 12))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
 (column-number-mode 1)
@@ -42,7 +46,6 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 (advice-add #'display-startup-echo-area-message :override #'ignore)
 
-(defvar IS-WINDOWS (eq system-type 'windows-nt))
 (when IS-WINDOWS
   (setq w32-get-true-file-attributes nil
         w32-pipe-read-delay 0
