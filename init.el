@@ -65,6 +65,16 @@ With ARG, opens in in the current working directory"
             (cdr (project-current)))))
     (start-process "terminal" nil (getenv "TERMINAL"))))
 
+(defun my/copy-file-name ()
+  "Copy current buffer's file path to clipboard/kill-ring."
+  (interactive)
+  (kill-new (buffer-file-name)))
+
+(defun my/copy-pwd ()
+  "Copy pwd to clipboard/kill-ring."
+  (interactive)
+  (kill-new default-directory))
+
 ;; HIDPI SUPPORT. Mostly quite basic, only tested on Windows so far.
 ;; Need to Change high DPI settings -> "Override high DPI scaling begavior." ->
 ;; Scaling performed by: Application for runemacs.exe
