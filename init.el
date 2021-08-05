@@ -25,12 +25,15 @@
 (setq-default indent-tabs-mode nil
               truncate-lines t)
 
+(defvar font-name "Hack")
+(defvar font-size 13)
+(set-frame-font (format "%s-%d" font-name font-size) t t)
+
 (column-number-mode 1)
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (blink-cursor-mode 0)
-(set-frame-font "Hack-12" t t)
 (show-paren-mode t)
 (global-auto-revert-mode t)
 (savehist-mode 1)
@@ -58,6 +61,45 @@ With ARG, opens in in the current working directory"
           (if arg default-directory
             (cdr (project-current)))))
     (start-process "terminal" nil (getenv "TERMINAL"))))
+
+;; HIDPI SUPPORT. Mostly quite basic, only tested on Windows so far.
+;; Need to Change high DPI settings -> "Override high DPI scaling begavior." ->
+;; Scaling performed by: Application for runemacs.exe
+(defun my/get-current-dpi ()
+  "Gets the DPI of the monitor where the frame is placed"
+  (let* ((geometry (frame-monitor-attribute 'geometry))
+         (mm-size (frame-monitor-attribute 'mm-size))
+         (width-res (/ (caddr geometry) 1.0))
+         (height-res (/ (cadddr geometry) 1.0))
+         (width-mm (car mm-size))
+         (height-mm (cadr mm-size)))
+    (floor (* 0.5 (+
+                   (* (/ width-res width-mm) 25.4)
+                   (* (/ height-res height-mm) 25.4))))))
+
+;; TODO: might need to keep per-frame info incase different frames
+;; are on different monitors
+(defvar current-frame-dpi (my/get-current-dpi))
+
+(defun my/scale-interface ()
+  "Rescales emacs when I drag frames across monitors.
+Support for more interface parts will be added as I feel like it"
+  (interactive)
+  (if (> current-frame-dpi 96)
+      ;; I need to multiply and then divide by 10.0 because floor doesn't support
+      ;; flooring presicion, it can only return integers.
+      ;; 96.0 instead of 96 to force floating division
+      (let ((scale-factor (/ (floor (* (/ 161 96.0) 10)) 10.0)))
+        (set-frame-font (format "%s-%d" font-name (* font-size scale-factor)) t nil))
+    (set-frame-font (format "%s-%d" font-name font-size) t nil)))
+
+;; TODO: scale the frame that's just been created
+(setq move-frame-functions
+      (lambda (frame)
+        (let ((old-frame-dpi current-frame-dpi))
+          (setq current-frame-dpi (my/get-current-dpi))
+          (when (/= old-frame-dpi current-frame-dpi)
+            (my/scale-interface)))))
 
 ;; straight.el boilerplate
 (setq straight-use-package-by-default t)
@@ -144,6 +186,10 @@ With ARG, opens in in the current working directory"
   (evil-set-initial-state 'fundamental-mode 'normal)
   (evil-set-initial-state 'git-commit-mode 'emacs)
   :hook (after-init-hook . evil-mode))
+
+(use-package evil-surround
+  :after evil
+  :config (global-evil-surround-mode 1))
 
 (use-package tree-sitter
   :config
