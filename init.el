@@ -198,6 +198,9 @@ With ARG, opens in in the current working directory"
   :commands lsp)
 
 (use-package web-mode
+  :init (setq web-mode-markup-indent-offset 2
+              web-mode-css-indent-offset 2
+              web-mode-code-indent-offset 2)
   :defer t)
 
 (use-package odin-mode
