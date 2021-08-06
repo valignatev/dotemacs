@@ -28,9 +28,7 @@
 (defvar IS-WINDOWS (eq system-type 'windows-nt))
 
 (defvar font-name "Hack")
-(if IS-WINDOWS
-    (defvar font-size 13)
-  (defvar font-size 12))
+(defvar font-size (if IS-WINDOWS 13 12))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
 (column-number-mode 1)
