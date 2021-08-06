@@ -168,6 +168,9 @@ Support for more interface parts will be added as I feel like it"
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
+(use-package minions
+  :config (minions-mode 1))
+
 (use-package magit
   :init
   (setq magit-diff-refine-hunk t
