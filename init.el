@@ -27,6 +27,15 @@
 
 (defvar IS-WINDOWS (eq system-type 'windows-nt))
 
+;; Determine OS-specific terminal emulator
+(when (equal (getenv "TERM") "dumb")
+  (setenv "TERM" (if IS-WINDOWS "msys" (getenv ("TERMINAL")))))
+(defvar terminal (if IS-WINDOWS "powershell.exe" (getenv "TERMINAL")))
+;; Normal powershell.exe is just a shell, we need to tell it to actually start
+;; a gui window with these args
+(defvar terminal-args (if IS-WINDOWS "Start-Process PowerShell" nil))
+
+;; Font settings
 (defvar font-name "Hack")
 (defvar font-size (if IS-WINDOWS 13 12))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
@@ -61,7 +70,7 @@ With ARG, opens in in the current working directory"
   (let ((default-directory
           (if arg default-directory
             (cdr (project-current)))))
-    (start-process "terminal" nil (getenv "TERMINAL"))))
+    (start-process "terminal" nil terminal terminal-args)))
 
 (defun my/copy-file-name ()
   "Copy current buffer's file path to clipboard/kill-ring."
@@ -76,6 +85,8 @@ With ARG, opens in in the current working directory"
 ;; HIDPI SUPPORT. Mostly quite basic, only tested on Windows so far.
 ;; Need to Change high DPI settings -> "Override high DPI scaling begavior." ->
 ;; Scaling performed by: Application for runemacs.exe
+(defvar base-dpi 96 "Mininal DPI that would have scale factor equal 1.0")
+
 (defun my/get-current-dpi ()
   "Gets the DPI of the monitor where the frame is placed"
   (let* ((geometry (frame-monitor-attribute 'geometry))
@@ -88,21 +99,33 @@ With ARG, opens in in the current working directory"
                    (* (/ width-res width-mm) 25.4)
                    (* (/ height-res height-mm) 25.4))))))
 
+(defun my/get-scale-factor (dpi)
+  "Gets scale factor as a floating point number with one ditig after comma
+based on the DPI."
+  ;; I need to multiply and then divide by 10.0 because floor doesn't support
+  ;; flooring presicion, it can only return integers.
+  ;; base-dpi * 1.0 instead of just base-dpi to force floating division
+  (let ((dpi (if (< dpi base-dpi) base-dpi dpi)))
+    (/ (floor (* (/ dpi (* base-dpi 1.0)) 10)) 10.0)))
+
 ;; TODO: might need to keep per-frame info incase different frames
 ;; are on different monitors
 (defvar current-frame-dpi (my/get-current-dpi))
 
-(defun my/scale-interface ()
+(defun my/scale-interface (old-dpi new-dpi)
   "Rescales emacs when I drag frames across monitors.
 Support for more interface parts will be added as I feel like it"
   (interactive)
-  (if (> current-frame-dpi 96)
-      ;; I need to multiply and then divide by 10.0 because floor doesn't support
-      ;; flooring presicion, it can only return integers.
-      ;; 96.0 instead of 96 to force floating division
-      (let ((scale-factor (/ (floor (* (/ 161 96.0) 10)) 10.0)))
-        (set-frame-font (format "%s-%d" font-name (* font-size scale-factor)) t nil))
-    (set-frame-font (format "%s-%d" font-name font-size) t nil)))
+  (let ((scale-factor (my/get-scale-factor new-dpi))
+        (old-scale-factor (my/get-scale-factor old-dpi)))
+    (run-with-idle-timer 0.3 nil
+                         'set-frame-size
+                         nil
+                         (round (* (/ (frame-text-width) old-scale-factor) scale-factor))
+                         (round (* (/ (frame-text-height) old-scale-factor) scale-factor))
+                         t)
+    (set-frame-font (format "%s-%d" font-name (* font-size scale-factor)) nil nil)
+  ))
 
 ;; TODO: scale the frame that's just been created
 (setq move-frame-functions
@@ -110,7 +133,7 @@ Support for more interface parts will be added as I feel like it"
         (let ((old-frame-dpi current-frame-dpi))
           (setq current-frame-dpi (my/get-current-dpi))
           (when (/= old-frame-dpi current-frame-dpi)
-            (my/scale-interface)))))
+            (my/scale-interface old-frame-dpi current-frame-dpi)))))
 
 ;; straight.el boilerplate
 (setq straight-use-package-by-default t)
@@ -252,6 +275,8 @@ Support for more interface parts will be added as I feel like it"
   :init
   (setq lsp-keymap-prefix "C-c l"
         lsp-enable-symbol-highlighting nil)
+  (when IS-WINDOWS
+    (setq lsp-zig-zls-executable "C:\\Users\\vj\\projects\\zls\\zig-out\\bin\\zls.exe"))
   :hook (
          (php-mode-hook . lsp)
          (zig-mode-hook . lsp))
