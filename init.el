@@ -70,7 +70,8 @@ With ARG, opens in in the current working directory"
   (let ((default-directory
           (if arg default-directory
             (cdr (project-current)))))
-    (start-process "terminal" nil terminal terminal-args)))
+    (if terminal-args (start-process "terminal" nil terminal terminal-args)
+      (start-process "terminal" nil terminal))))
 
 (defun my/copy-file-name ()
   "Copy current buffer's file path to clipboard/kill-ring."
