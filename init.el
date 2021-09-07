@@ -171,9 +171,15 @@ Support for more interface parts will be added as I feel like it"
          ("requirements.txt\\'" . conf-mode)
          ("\\.styl\\'" . css-mode))
   :bind (("C-x t" . my/terminal-in-project-root))
+  :hook ((text-mode-hook . visual-line-mode)
+         (org-mode-hok . visual-line-mode))
   :config
   (setq js-indent-level 2
         css-indent-offset 2))
+
+(use-package org
+  :defer t
+  :config (push 'md org-export-backends))
 
 ;; Magic garbage collector hack
 ;; It's kinda small so maybe makes sense to just copy/paste
