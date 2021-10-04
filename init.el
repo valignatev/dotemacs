@@ -192,9 +192,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package no-littering
   :config
-  (require 'no-littering)
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+  (require 'no-littering))
 
 (use-package minions
   :config (minions-mode 1))
@@ -222,7 +220,8 @@ Support for more interface parts will be added as I feel like it"
         evil-want-Y-yank-to-eol t
         evil-want-C-u-scroll t
         evil-vsplit-window-right t
-        evil-split-window-below t)
+        evil-split-window-below t
+        evil-undo-system 'undo-redo)
   :config
   (evil-set-initial-state 'prog-mode 'normal)
   (evil-set-initial-state 'text-mode 'normal)
