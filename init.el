@@ -8,6 +8,8 @@
       initial-major-mode 'fundamental-mode
       initial-scratch-message nil
       scroll-conservatively 101
+      mouse-wheel-progressive-speed nil
+      mouse-wheel-scroll-amount '(2)
       x-gtk-use-system-tooltips nil
       use-dialog-box nil
       auto-window-vscroll nil
