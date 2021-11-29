@@ -23,7 +23,8 @@
       column-number-indicator-zero-based nil
       save-interprogram-paste-before-kill t
       truncate-partial-width-windows nil
-      ring-bell-function 'ignore)
+      ring-bell-function 'ignore
+      require-final-newline t)
 (setq-default indent-tabs-mode nil
               truncate-lines t)
 
