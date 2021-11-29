@@ -221,13 +221,15 @@ Support for more interface parts will be added as I feel like it"
         evil-want-C-u-scroll t
         evil-vsplit-window-right t
         evil-split-window-below t
-        evil-undo-system 'undo-redo)
+        evil-undo-system 'undo-redo
+        evil-symbol-word-search t)
   :config
   (evil-set-initial-state 'prog-mode 'normal)
   (evil-set-initial-state 'text-mode 'normal)
   (evil-set-initial-state 'conf-mode 'normal)
   (evil-set-initial-state 'fundamental-mode 'normal)
   (evil-set-initial-state 'git-commit-mode 'emacs)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
   :hook (after-init-hook . evil-mode))
 
 (use-package evil-surround
@@ -295,4 +297,9 @@ Support for more interface parts will be added as I feel like it"
   :defer t)
 
 (use-package odin-mode
-  :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode"))
+  ;; More syntax support before getting merged
+  :straight (odin-mode :type git :host github :repo "corruptmemory/odin-mode")
+  ;; This is horrible, but have to do it because odin-mode uses javascript's mode
+  ;; indentation facilities
+  :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4)))
+         (js-mode-hook . (lambda() (setq js-indent-level 2)))))
