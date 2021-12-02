@@ -178,7 +178,9 @@ Support for more interface parts will be added as I feel like it"
          (org-mode-hok . visual-line-mode))
   :config
   (setq js-indent-level 2
-        css-indent-offset 2))
+        css-indent-offset 2)
+  (setq-default
+   c-basic-offset 4))
 
 (use-package org
   :defer t
@@ -301,7 +303,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package odin-mode
   ;; More syntax support before getting merged
-  :straight (odin-mode :type git :host github :repo "corruptmemory/odin-mode")
+  :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode")
   ;; This is horrible, but have to do it because odin-mode uses javascript's mode
   ;; indentation facilities
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4)))
