@@ -8,8 +8,8 @@
       initial-major-mode 'fundamental-mode
       initial-scratch-message nil
       scroll-conservatively 101
-      mouse-wheel-progressive-speed nil
-      mouse-wheel-scroll-amount '(2)
+      ;; mouse-wheel-progressive-speed nil
+      ;; mouse-wheel-scroll-amount '(2)
       x-gtk-use-system-tooltips nil
       use-dialog-box nil
       auto-window-vscroll nil
@@ -43,6 +43,7 @@
 (defvar font-size (if IS-WINDOWS 13 12))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
+(pixel-scroll-precision-mode t)
 (column-number-mode 1)
 (tool-bar-mode 0)
 (menu-bar-mode 0)
@@ -158,7 +159,7 @@ Support for more interface parts will be added as I feel like it"
 (straight-use-package 'use-package)
 
 (use-package spacemacs-theme
-  :defer t
+  ; :defer t
   :init
   (setq spacemacs-theme-comment-bg nil
         spacemacs-theme-comment-italics t)
@@ -241,15 +242,15 @@ Support for more interface parts will be added as I feel like it"
   :after evil
   :config (global-evil-surround-mode 1))
 
+(use-package tree-sitter-langs
+  :custom-face
+  (tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face)))))
+
 (use-package tree-sitter
   :config
   (require 'tree-sitter-langs)
   (global-tree-sitter-mode)
   :hook((tree-sitter-after-on-hook . tree-sitter-hl-mode)))
-
-(use-package tree-sitter-langs
-  :custom-face
-  (tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face)))))
 
 (use-package selectrum
   :config
@@ -306,5 +307,7 @@ Support for more interface parts will be added as I feel like it"
   :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode")
   ;; This is horrible, but have to do it because odin-mode uses javascript's mode
   ;; indentation facilities
-  :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4)))
+  :config (setq indent-tabs-mode nil)
+  :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
+                                            indent-tabs-mode nil)))
          (js-mode-hook . (lambda() (setq js-indent-level 2)))))
