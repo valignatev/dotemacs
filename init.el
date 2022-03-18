@@ -73,7 +73,7 @@ With ARG, opens in in the current working directory"
   (interactive "P")
   (let ((default-directory
           (if arg default-directory
-            (cdr (project-current)))))
+            (car (cdr (cdr (project-current)))))))
     (if terminal-args (start-process "terminal" nil terminal terminal-args)
       (start-process "terminal" nil terminal))))
 
