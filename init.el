@@ -26,7 +26,8 @@
       ring-bell-function 'ignore
       require-final-newline t)
 (setq-default indent-tabs-mode nil
-              truncate-lines t)
+              truncate-lines t
+              tab-width 4)
 
 (defvar IS-WINDOWS (eq system-type 'windows-nt))
 
@@ -311,3 +312,6 @@ Support for more interface parts will be added as I feel like it"
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
                                             indent-tabs-mode nil)))
          (js-mode-hook . (lambda() (setq js-indent-level 2)))))
+
+(use-package go-mode
+  :defer t)
