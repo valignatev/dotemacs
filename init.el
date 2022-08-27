@@ -286,16 +286,9 @@ Support for more interface parts will be added as I feel like it"
 (use-package php-mode
   :defer t)
 
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-        lsp-enable-symbol-highlighting nil)
-  (when IS-WINDOWS
-    (setq lsp-zig-zls-executable "C:\\Users\\vj\\projects\\zls\\zig-out\\bin\\zls.exe"))
-  :hook (
-         (php-mode-hook . lsp)
-         (zig-mode-hook . lsp))
-  :commands lsp)
+(use-package eglot
+  :defer t
+  :custom (eglot-ignored-server-capabilities '(:documentHighlightProvider)))
 
 (use-package web-mode
   :init (setq web-mode-markup-indent-offset 2
