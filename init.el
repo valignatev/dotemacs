@@ -308,3 +308,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package go-mode
   :defer t)
+
+(use-package jai-mode
+  :defer t
+  :straight (jai-mode :type git :host github :repo "krig/jai-mode"))
