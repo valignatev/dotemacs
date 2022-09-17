@@ -311,4 +311,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package jai-mode
   :defer t
-  :straight (jai-mode :type git :host github :repo "krig/jai-mode"))
+  :straight (jai-mode :type git :host github :repo "krig/jai-mode")
+  :hook ((jai-mode-hook . (lambda () (setq js-indent-level 4
+                                            indent-tabs-mode nil)))
+         (js-mode-hook . (lambda() (setq js-indent-level 2)))))
