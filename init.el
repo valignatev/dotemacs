@@ -24,7 +24,9 @@
       save-interprogram-paste-before-kill t
       truncate-partial-width-windows nil
       ring-bell-function 'ignore
-      require-final-newline t)
+      require-final-newline t
+      imenu-max-items 1000
+      imenu-max-item-length 1000)
 (setq-default indent-tabs-mode nil
               truncate-lines t
               tab-width 4)
