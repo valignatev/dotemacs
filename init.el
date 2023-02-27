@@ -27,7 +27,8 @@
       require-final-newline t
       imenu-max-items 1000
       imenu-max-item-length 1000)
-(setq-default indent-tabs-mode nil
+(setq-default select-active-regions nil
+              indent-tabs-mode nil
               truncate-lines t
               tab-width 4)
 
@@ -169,6 +170,8 @@ Support for more interface parts will be added as I feel like it"
   (load-theme 'spacemacs-light t)
   :custom-face
   (font-lock-type-face ((t (:inherit nil))))
+  ;; This will unset region background
+  ;; (region ((t (:background nil))))
   :hook
   ((dired-mode-hook . dired-hide-details-mode)))
 
@@ -179,7 +182,8 @@ Support for more interface parts will be added as I feel like it"
          ("\\.styl\\'" . css-mode))
   :bind (("C-x t" . my/terminal-in-project-root))
   :hook ((text-mode-hook . visual-line-mode)
-         (org-mode-hok . visual-line-mode))
+         (org-mode-hook . visual-line-mode)
+         (js-mode-hook . (lambda() (setq js-indent-level 2))))
   :config
   (setq js-indent-level 2
         css-indent-offset 2)
@@ -239,7 +243,7 @@ Support for more interface parts will be added as I feel like it"
   (evil-set-initial-state 'fundamental-mode 'normal)
   (evil-set-initial-state 'git-commit-mode 'emacs)
   (defalias #'forward-evil-word #'forward-evil-symbol)
-  :hook (after-init-hook . evil-mode))
+ :hook (after-init-hook . evil-mode))
 
 (use-package evil-surround
   :after evil
@@ -301,19 +305,194 @@ Support for more interface parts will be added as I feel like it"
 (use-package odin-mode
   ;; More syntax support before getting merged
   :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode")
-  ;; This is horrible, but have to do it because odin-mode uses javascript's mode
-  ;; indentation facilities
   :config (setq indent-tabs-mode nil)
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
-                                            indent-tabs-mode nil)))
-         (js-mode-hook . (lambda() (setq js-indent-level 2)))))
+                                            indent-tabs-mode nil)))))
 
 (use-package go-mode
   :defer t)
 
+(defun setup-jai-mode ()
+  (setq js-indent-level 4
+        indent-tabs-mode nil)
+  (add-to-list 'eglot-server-programs
+               '((jai-mode :language-id "jai") . ("/home/vj/projects/3rdparty/jai_lsp/jai_lsp" "-build_file" "main.jai" "-log_level" "1")))
+  )
+
 (use-package jai-mode
   :defer t
   :straight (jai-mode :type git :host github :repo "krig/jai-mode")
-  :hook ((jai-mode-hook . (lambda () (setq js-indent-level 4
-                                            indent-tabs-mode nil)))
-         (js-mode-hook . (lambda() (setq js-indent-level 2)))))
+  :hook ((jai-mode-hook . setup-jai-mode)))
+
+(ignore-errors
+  (require 'ansi-color)
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
+
+;; (defface visible-mark-active ;; put this before (require 'visible-mark)
+;;            '((((type tty) (class mono)))
+;;              (t (:background "magenta"))) "")
+(defface visible-mark-active
+  '((((type tty) (class mono)))
+    (t (:background "light salmon"))) "")
+
+(use-package visible-mark
+  :init (setq visible-mark-faces `(visible-mark-face1))
+  :config
+  (global-visible-mark-mode 1))
+
+
+
+
+
+
+
+;; Courtecy of a kind stranger from jai secret beta discord
+;; TODO: tailor it to my needs
+
+(defun append-to-list (list-var elements)
+  "Append ELEMENTS to the end of LIST-VAR.
+
+The return value is the new value of LIST-VAR.
+source: https://stackoverflow.com/questions/24356401/how-to-append-multiple-elements-to-a-list-in-emacs-lisp"
+  (unless (consp elements)
+    (error "ELEMENTS must be a list"))
+  (let ((list (symbol-value list-var)))
+    (if list
+        (setcdr (last list) elements)
+      (set list-var elements)))
+  (symbol-value list-var))
+(setq build-script-names (list
+                          (if IS-WINDOWS (cons "build.ps1" "powershell.exe -ExecutionPolicy Unrestricted -File build.ps1"))
+                          (if IS-WINDOWS "build.bat"         "./build.sh")
+                          (if IS-WINDOWS "build-windows.bat" "./build-linux.sh")
+                          (if IS-WINDOWS "bob.exe"           "./bob")
+                          (cons "bob.c" (let ((target-exe (if IS-WINDOWS "bob.exe" "bob")))
+                                          (cond ((executable-find "clang") (concat "clang bob.c -o " target-exe))
+                                                ((executable-find "gcc")   (concat "gcc bob.c -o "   target-exe))
+                                                ((executable-find "cl")    (concat "cl bob.c /Fe:"   target-exe))
+                                                (t (error "no C compiler for bob.c found")))))
+                          '("CMakeLists.txt" . "cmake -S . -B __build__ && cmake --build __build__")
+                          (if IS-WINDOWS '("build.sh" . "wsl bash -ic ./build.sh"))
+                          (if IS-WINDOWS
+                              '("Makefile" . "wsl make")
+                            '("Makefile"       . "make"))
+                          ))
+(if IS-WINDOWS
+    (append-to-list 'build-script-names
+                    (list '("build.jai"      . "jai build.jai -quiet -exe app && app")
+                          '("main.jai"       . "jai main.jai -quiet -exe app && app")
+                          '("first.jai"      . "jai first.jai -quiet -exe app && app")))
+  (append-to-list 'build-script-names
+                  (list '("build.jai"      . "time jai build.jai -quiet -exe app && time ./app")
+                        '("main.jai"       . "time jai main.jai -quiet -exe app && time ./app")
+                        '("first.jai"      . "time jai first.jai -quiet -exe app && time ./app"))))
+
+
+
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist 'msbuild-error)
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(msbuild-error
+                 "^\\(.*?\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:\\(fatal \\)?error\\|\\(warning\\)\\|\\(message\\)\\) .*?:" 1 2 3 (4))))
+
+(defun first-non-nil (l)
+  (unless (null l)
+    (if (car l)
+        (car l)
+      (first-non-nil (cdr l)))))
+
+(defun filter-non-nil (l)
+  (unless (null l)
+    (if (car l)
+        (cons (car l) (filter-non-nil (cdr l)))
+      (filter-non-nil (cdr l)))))
+
+(cl-defun longest-car-string (l &optional (max-so-far (cons nil nil)) (max-so-far-len 0))
+  (if l (let* ((element (caar l))
+               (others  (cdr l))
+               (strlen  (length element)))
+          (if (> strlen max-so-far-len)
+              (longest-car-string others (car l) strlen)
+            (longest-car-string others max-so-far max-so-far-len)))
+    max-so-far))
+
+(defun find-closest-build-script ()
+  (let* ((potential-paths (mapcar (lambda (build-script-name)
+                                    (let ((name (if (consp build-script-name) (car build-script-name) build-script-name)))
+                                      (when name ;; NOTE(kind stranger from jai secret beta discord): name could be
+                                        ;; nil since this kind of
+                                        ;; build system is not
+                                        ;; available on this
+                                        ;; architecture
+                                        (let ((path (locate-dominating-file (expand-file-name default-directory) name)))
+                                          (when path
+                                            (cons path name))))))
+                                  build-script-names))
+         (existing-paths (filter-non-nil potential-paths)))
+
+    (if existing-paths
+        (longest-car-string existing-paths)
+      (cons nil nil))
+    ))
+
+(cl-defun translate-build-file-to-command (file &optional (build-scrips build-script-names))
+  (unless build-scrips
+    (error "unkown build script"))
+  (let* ((first          (car build-scrips))
+         (iter-file-name (if (consp first) (car first) first)))
+    (if (string= file iter-file-name)
+        (if (consp first) (cdr first) first)
+      (translate-build-file-to-command file (cdr build-scrips)))))
+
+(setq compilation-finish-functions
+      (list (lambda (&rest _)
+              (compilation-minor-mode 1))))
+
+(defun find-build-script-and-compile ()
+  (interactive)
+  (let* ((path-and-script (find-closest-build-script))
+         (path   (car path-and-script))
+         (script (cdr path-and-script)))
+    (unless path
+      (error "no build files found"))
+
+    (let ((command (translate-build-file-to-command script))
+          (curr-dir default-directory))
+
+      (cd path)
+      (compilation-start command t)
+      (cd curr-dir))))
+
+
+;; (push '("^Comint \\(finished\\).*"
+;;         (0 '(face nil compilation-message nil help-echo nil mouse-face nil) t)
+;;         (1 compilation-info-face))
+;;       compilation-mode-font-lock-keywords)
+
+;; (push '("^Comint \\(exited abnormally\\|interrupt\\|killed\\|terminated\\|segmentation fault\\)\\(?:.*with code \\([0-9]+\\)\\)?.*"
+;;         (0 '(face nil compilation-message nil help-echo nil mouse-face nil) t)
+;;         (1 compilation-error-face)
+;;         (2 compilation-error-face nil t))
+;;       compilation-mode-font-lock-keywords)
+
+
+
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(font-lock-type-face ((t (:inherit nil))))
+ '(tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face)))))
