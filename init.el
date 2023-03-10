@@ -26,7 +26,8 @@
       ring-bell-function 'ignore
       require-final-newline t
       imenu-max-items 1000
-      imenu-max-item-length 1000)
+      imenu-max-item-length 1000
+      eldoc-echo-area-use-multiline-p nil)
 (setq-default select-active-regions nil
               indent-tabs-mode nil
               truncate-lines t
@@ -179,10 +180,16 @@ Support for more interface parts will be added as I feel like it"
   :mode (("Pipfile\\'" . conf-toml-mode)
          ("Pipfile.lock\\'" . js-mode)
          ("requirements.txt\\'" . conf-mode)
-         ("\\.styl\\'" . css-mode))
+         ("\\.styl\\'" . css-mode)
+         ("\\.py\\'" . python-ts-mode)
+         ("\\.tsx\\'" . tsx-ts-mode)
+         ("\\.ts\\'" . typescript-ts-mode)
+         ("\\.js\\'" . typescript-ts-mode)
+         ("\\.go\\'" . go-ts-mode))
   :bind (("C-x t" . my/terminal-in-project-root))
   :hook ((text-mode-hook . visual-line-mode)
          (org-mode-hook . visual-line-mode)
+         (compilation-mode-hook . visual-line-mode)
          (js-mode-hook . (lambda() (setq js-indent-level 2))))
   :config
   (setq js-indent-level 2
@@ -249,16 +256,6 @@ Support for more interface parts will be added as I feel like it"
   :after evil
   :config (global-evil-surround-mode 1))
 
-(use-package tree-sitter-langs
-  :custom-face
-  (tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face)))))
-
-(use-package tree-sitter
-  :config
-  (require 'tree-sitter-langs)
-  (global-tree-sitter-mode)
-  :hook((tree-sitter-after-on-hook . tree-sitter-hl-mode)))
-
 (use-package selectrum
   :config
   (selectrum-mode +1))
@@ -294,7 +291,11 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package eglot
   :defer t
-  :custom (eglot-ignored-server-capabilities '(:documentHighlightProvider)))
+  :custom (eglot-ignored-server-capabilities '(:documentHighlightProvider))
+  :config
+  (add-to-list
+   'eglot-server-programs
+   '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ("typescript-language-server" "--stdio"))))
 
 (use-package web-mode
   :init (setq web-mode-markup-indent-offset 2
