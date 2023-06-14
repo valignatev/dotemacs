@@ -289,6 +289,9 @@ Support for more interface parts will be added as I feel like it"
 (use-package php-mode
   :defer t)
 
+(use-package async
+  :defer t)
+
 (use-package eglot
   :defer t
   :custom (eglot-ignored-server-capabilities '(:documentHighlightProvider))
@@ -301,6 +304,10 @@ Support for more interface parts will be added as I feel like it"
   :init (setq web-mode-markup-indent-offset 2
               web-mode-css-indent-offset 2
               web-mode-code-indent-offset 2)
+  :mode (("\\.erb\\'" . web-mode))
+  :config
+  (setq web-mode-engines-alist
+        '(("blade"  . "\\.blade\\.php\\'")))
   :defer t)
 
 (use-package odin-mode
