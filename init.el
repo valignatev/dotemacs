@@ -56,7 +56,6 @@
 (blink-cursor-mode 0)
 (show-paren-mode t)
 (global-auto-revert-mode t)
-(savehist-mode 1)
 (recentf-mode 1)
 (winner-mode 1)
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -163,6 +162,14 @@ Support for more interface parts will be added as I feel like it"
 (setq use-package-hook-name-suffix nil)
 (straight-use-package 'use-package)
 
+
+(use-package savehist
+  ;; Needs to be after no-littering because it changes where the savehist
+  ;; file go, so savehist might get confused where to load the history from
+  :after no-littering
+  :init
+  (savehist-mode))
+
 (use-package spacemacs-theme
   ; :defer t
   :init
@@ -256,17 +263,36 @@ Support for more interface parts will be added as I feel like it"
   :after evil
   :config (global-evil-surround-mode 1))
 
-(use-package selectrum
-  :config
-  (selectrum-mode +1))
+(use-package vertico
+  :straight (:files (:defaults "extensions/*"))
+  :init
+  (vertico-mode))
 
-(use-package prescient
-  :config
-  (use-package selectrum-prescient
-    :after (selectrum)
-    :config
-    (selectrum-prescient-mode +1)
-    (prescient-persist-mode +1)))
+(use-package marginalia
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  ;; Marginalia must be activated in the :init section of use-package such that
+  ;; the mode gets enabled right away. Note that this forces loading the
+  ;; package.
+  (marginalia-mode))
+
+;; (use-package orderless
+;;   :init
+;;   (setq completion-styles '(orderless basic)
+;;         completion-category-defaults nil
+;;         completion-category-overrides '((file (styles partial-completion)))))
+
+;; Remove from now to test orderless + savehist
+;; plus can't load the package for some reason:
+;; https://github.com/radian-software/straight.el/issues/1089
+;; (use-package prescient
+;;   :config
+;;   (use-package vertico-prescient
+;;     :after (vertico)
+;;     :config
+;;     (vertico-prescient-mode 1)
+;;     (prescient-persist-mode 1)))
 
 (use-package deadgrep
   :bind ("<f5>" . deadgrep))
@@ -322,10 +348,7 @@ Support for more interface parts will be added as I feel like it"
 
 (defun setup-jai-mode ()
   (setq js-indent-level 4
-        indent-tabs-mode nil)
-  (add-to-list 'eglot-server-programs
-               '((jai-mode :language-id "jai") . ("/home/vj/projects/3rdparty/jai_lsp/jai_lsp" "-build_file" "main.jai" "-log_level" "1")))
-  )
+        indent-tabs-mode nil))
 
 (use-package jai-mode
   :defer t
