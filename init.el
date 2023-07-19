@@ -277,11 +277,11 @@ Support for more interface parts will be added as I feel like it"
   ;; package.
   (marginalia-mode))
 
-;; (use-package orderless
-;;   :init
-;;   (setq completion-styles '(orderless basic)
-;;         completion-category-defaults nil
-;;         completion-category-overrides '((file (styles partial-completion)))))
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
 
 ;; Remove from now to test orderless + savehist
 ;; plus can't load the package for some reason:
