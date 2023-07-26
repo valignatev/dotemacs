@@ -144,31 +144,58 @@ Support for more interface parts will be added as I feel like it"
           (when (/= old-frame-dpi current-frame-dpi)
             (my/scale-interface old-frame-dpi current-frame-dpi)))))
 
-;; straight.el boilerplate
-(setq straight-use-package-by-default t)
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;; elpaca boilerplate
+(defvar elpaca-installer-version 0.5)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+
+(elpaca bind-key)
+(elpaca compat :demant t)
+(elpaca use-package :demand t)
 
 (setq use-package-hook-name-suffix nil)
-(straight-use-package 'use-package)
+;; Install use-package support
+(elpaca elpaca-use-package
+  ;; Enable :elpaca use-package keyword.
+  (elpaca-use-package-mode)
+  ;; Assume :elpaca t unless otherwise specified.
+  (setq elpaca-use-package-by-default t))
 
-
-(use-package savehist
-  ;; Needs to be after no-littering because it changes where the savehist
-  ;; file go, so savehist might get confused where to load the history from
-  :after no-littering
-  :init
-  (savehist-mode))
+;; Block until current queue processed.
+(elpaca-wait)
 
 (use-package spacemacs-theme
   ; :defer t
@@ -184,6 +211,7 @@ Support for more interface parts will be added as I feel like it"
   ((dired-mode-hook . dired-hide-details-mode)))
 
 (use-package emacs
+  :elpaca nil
   :mode (("Pipfile\\'" . conf-toml-mode)
          ("Pipfile.lock\\'" . js-mode)
          ("requirements.txt\\'" . conf-mode)
@@ -219,7 +247,8 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package no-littering
   :config
-  (require 'no-littering))
+  (require 'no-littering)
+  (savehist-mode))
 
 (use-package minions
   :config (minions-mode 1))
@@ -257,14 +286,14 @@ Support for more interface parts will be added as I feel like it"
   (evil-set-initial-state 'fundamental-mode 'normal)
   (evil-set-initial-state 'git-commit-mode 'emacs)
   (defalias #'forward-evil-word #'forward-evil-symbol)
- :hook (after-init-hook . evil-mode))
+ :hook (elpaca-after-init-hook . evil-mode))
 
 (use-package evil-surround
   :after evil
   :config (global-evil-surround-mode 1))
 
 (use-package vertico
-  :straight (:files (:defaults "extensions/*"))
+  ;; :straight (:files (:defaults "extensions/*"))
   :init
   (vertico-mode))
 
@@ -338,7 +367,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package odin-mode
   ;; More syntax support before getting merged
-  :straight (odin-mode :type git :host github :repo "mattt-b/odin-mode")
+  :elpaca (odin-mode :host github :repo "mattt-b/odin-mode")
   :config (setq indent-tabs-mode nil)
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
                                             indent-tabs-mode nil)))))
@@ -352,7 +381,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package jai-mode
   :defer t
-  :straight (jai-mode :type git :host github :repo "krig/jai-mode")
+  :elpaca (jai-mode :host github :repo "krig/jai-mode")
   :hook ((jai-mode-hook . setup-jai-mode)))
 
 (ignore-errors
