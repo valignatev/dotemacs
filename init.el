@@ -8,8 +8,8 @@
       initial-major-mode 'fundamental-mode
       initial-scratch-message nil
       scroll-conservatively 101
-      ;; mouse-wheel-progressive-speed nil
-      ;; mouse-wheel-scroll-amount '(2)
+      mouse-wheel-progressive-speed nil
+      mouse-wheel-scroll-amount '(3)
       x-gtk-use-system-tooltips nil
       use-dialog-box nil
       auto-window-vscroll nil
@@ -181,6 +181,7 @@ Support for more interface parts will be added as I feel like it"
     (load "./elpaca-autoloads")))
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
+(setq elpaca-queue-limit 30)
 
 (elpaca bind-key)
 (elpaca compat :demant t)
