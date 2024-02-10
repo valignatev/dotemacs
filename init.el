@@ -27,7 +27,8 @@
       require-final-newline t
       imenu-max-items 1000
       imenu-max-item-length 1000
-      eldoc-echo-area-use-multiline-p nil)
+      eldoc-echo-area-use-multiline-p nil
+      make-backup-files nil)
 (setq-default select-active-regions nil
               indent-tabs-mode nil
               truncate-lines t
@@ -183,8 +184,11 @@ Support for more interface parts will be added as I feel like it"
 (elpaca `(,@elpaca-order))
 (setq elpaca-queue-limit 30)
 
+;; basically ensure elpaca is loaded before continuing
+(elpaca-wait)
 (elpaca bind-key)
 (elpaca compat :demant t)
+
 (elpaca use-package :demand t)
 
 (setq use-package-hook-name-suffix nil)
@@ -196,6 +200,17 @@ Support for more interface parts will be added as I feel like it"
   (setq elpaca-use-package-by-default t))
 
 ;; Block until current queue processed.
+(elpaca-wait)
+
+;; load no-littering as early as possible, but not earlier than compat
+;; (elpaca no-littering :demand t
+;;   (require 'no-littering)
+;;   (savehist-mode))
+
+(use-package no-littering
+  :config
+  (require 'no-littering)
+  (savehist-mode))
 (elpaca-wait)
 
 (use-package spacemacs-theme
@@ -221,11 +236,13 @@ Support for more interface parts will be added as I feel like it"
          ("\\.tsx\\'" . tsx-ts-mode)
          ("\\.ts\\'" . typescript-ts-mode)
          ("\\.js\\'" . typescript-ts-mode)
-         ("\\.go\\'" . go-ts-mode))
+         ("\\.go\\'" . go-ts-mode)
+         ("\\.html\\'" . html-mode))
   :bind (("C-x t" . my/terminal-in-project-root))
   :hook ((text-mode-hook . visual-line-mode)
          (org-mode-hook . visual-line-mode)
          (compilation-mode-hook . visual-line-mode)
+         (python-mode-hook . (lambda() (setq python-indent-def-block-scale 1)))
          (js-mode-hook . (lambda() (setq js-indent-level 2))))
   :config
   (setq js-indent-level 2
@@ -245,11 +262,6 @@ Support for more interface parts will be added as I feel like it"
   (setq gcmh-idle-delay 5
         gcmh-high-cons-threshold (* 100 1024 1024))  ; 100mb
   :hook ((window-setup-hook . gcmh-mode)))
-
-(use-package no-littering
-  :config
-  (require 'no-littering)
-  (savehist-mode))
 
 (use-package minions
   :config (minions-mode 1))
@@ -324,8 +336,21 @@ Support for more interface parts will be added as I feel like it"
 ;;     (vertico-prescient-mode 1)
 ;;     (prescient-persist-mode 1)))
 
+
+(defvar deadgrep-extra-arguments)
+(defun my/deadgrep-vanilla ()
+  (interactive)
+  (let ((deadgrep-extra-arguments '("--no-config")))
+    (call-interactively 'deadgrep)))
+
+(defun my/deadgrep-u ()
+  (interactive)
+  (let ((deadgrep-extra-arguments '("--no-config" "-u")))
+    (call-interactively 'deadgrep)))
+
 (use-package deadgrep
-  :bind ("<f5>" . deadgrep))
+  :bind (("<f5>" . my/deadgrep-vanilla)
+         ("<f6>" . my/deadgrep-u)))
 
 (use-package dockerfile-mode
   :defer t)
@@ -348,13 +373,25 @@ Support for more interface parts will be added as I feel like it"
 (use-package async
   :defer t)
 
+;; (use-package editorconfig
+;;   :defer t
+;;   :hook ((prog-mode-hook . (lambda () ((editorconfig-mode 1))))))
+
+(use-package editorconfig
+  :config (editorconfig-mode 1))
+
 (use-package eglot
   :defer t
-  :custom (eglot-ignored-server-capabilities '(:documentHighlightProvider))
+  :custom
+  (eglot-ignored-server-capabilities '(:documentHighlightProvider))
+  (eglot-events-buffer-size 0)
   :config
   (add-to-list
    'eglot-server-programs
-   '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ("typescript-language-server" "--stdio"))))
+   '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ("typescript-language-server" "--stdio")))
+  (add-to-list
+   'eglot-server-programs
+   '(jai-mode . ("/home/vj/projects/3rdparty/Jails/bin/jails" "-jai_path" "/home/vj/projects/3rdparty/jai/bin/jai"))))
 
 (use-package web-mode
   :init (setq web-mode-markup-indent-offset 2
@@ -549,7 +586,7 @@ source: https://stackoverflow.com/questions/24356401/how-to-append-multiple-elem
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+   '("bbb13492a15c3258f29c21d251da1e62f1abb8bbd492386a673dcfab474186af" "7fd8b914e340283c189980cd1883dbdef67080ad1a3a9cc3df864ca53bdc89cf" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
