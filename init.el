@@ -337,16 +337,15 @@ Support for more interface parts will be added as I feel like it"
 ;;     (prescient-persist-mode 1)))
 
 
-(defvar deadgrep-extra-arguments)
 (defun my/deadgrep-vanilla ()
   (interactive)
-  (let ((deadgrep-extra-arguments '("--no-config")))
-    (call-interactively 'deadgrep)))
+  (setq deadgrep-extra-arguments '("--no-config"))
+  (call-interactively 'deadgrep))
 
 (defun my/deadgrep-u ()
   (interactive)
-  (let ((deadgrep-extra-arguments '("--no-config" "-u")))
-    (call-interactively 'deadgrep)))
+  (setq deadgrep-extra-arguments '("--no-config" "-u"))
+  (call-interactively 'deadgrep))
 
 (use-package deadgrep
   :bind (("<f5>" . my/deadgrep-vanilla)
