@@ -227,7 +227,7 @@ Support for more interface parts will be added as I feel like it"
   ((dired-mode-hook . dired-hide-details-mode)))
 
 (use-package emacs
-  :elpaca nil
+  :ensure nil
   :mode (("Pipfile\\'" . conf-toml-mode)
          ("Pipfile.lock\\'" . js-mode)
          ("requirements.txt\\'" . conf-mode)
@@ -404,7 +404,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package odin-mode
   ;; More syntax support before getting merged
-  :elpaca (odin-mode :host github :repo "mattt-b/odin-mode")
+  :ensure (odin-mode :host github :repo "mattt-b/odin-mode")
   :config (setq indent-tabs-mode nil)
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
                                             indent-tabs-mode nil)))))
@@ -418,7 +418,7 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package jai-mode
   :defer t
-  :elpaca (jai-mode :host github :repo "krig/jai-mode")
+  :ensure (jai-mode :host github :repo "krig/jai-mode")
   :hook ((jai-mode-hook . setup-jai-mode)))
 
 (ignore-errors
