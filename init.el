@@ -266,6 +266,8 @@ Support for more interface parts will be added as I feel like it"
 (use-package minions
   :config (minions-mode 1))
 
+(use-package transient)
+
 (use-package magit
   :init
   (setq magit-diff-refine-hunk t
@@ -378,6 +380,16 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package editorconfig
   :config (editorconfig-mode 1))
+
+;; Two use-package to silence elpaca complains about required versions
+;; I need to figure out version locking idk
+;; Needed for eglot
+(use-package eldoc
+  :ensure t)
+
+;; Needed for eglot
+(use-package jsonrpc
+  :defer t)
 
 (use-package eglot
   :defer t
