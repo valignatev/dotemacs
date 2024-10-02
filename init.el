@@ -28,7 +28,9 @@
       imenu-max-items 1000
       imenu-max-item-length 1000
       eldoc-echo-area-use-multiline-p nil
-      make-backup-files nil)
+      pixel-scroll-precision-interpolate-page t
+      make-backup-files nil
+      warning-minimum-level :error)
 (setq-default select-active-regions nil
               indent-tabs-mode nil
               truncate-lines t
@@ -58,6 +60,7 @@
 (global-auto-revert-mode t)
 (recentf-mode 1)
 (winner-mode 1)
+(pixel-scroll-precision-mode t)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (advice-add #'display-startup-echo-area-message :override #'ignore)
 
@@ -269,6 +272,7 @@ Support for more interface parts will be added as I feel like it"
 (use-package transient)
 
 (use-package magit
+  :after (transient)
   :init
   (setq magit-diff-refine-hunk t
         git-commit-summary-max-length 73
