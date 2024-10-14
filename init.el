@@ -30,7 +30,8 @@
       eldoc-echo-area-use-multiline-p nil
       pixel-scroll-precision-interpolate-page t
       make-backup-files nil
-      warning-minimum-level :error)
+      warning-minimum-level :error
+      gdb-many-windows t)
 (setq-default select-active-regions nil
               indent-tabs-mode nil
               truncate-lines t
@@ -61,6 +62,7 @@
 (recentf-mode 1)
 (winner-mode 1)
 (pixel-scroll-precision-mode t)
+(global-hl-line-mode t)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (advice-add #'display-startup-echo-area-message :override #'ignore)
 
@@ -221,13 +223,26 @@ Support for more interface parts will be added as I feel like it"
   :init
   (setq spacemacs-theme-comment-bg nil
         spacemacs-theme-comment-italics t)
-  (load-theme 'spacemacs-light t)
+  ;; (load-theme 'spacemacs-light t)
   :custom-face
   (font-lock-type-face ((t (:inherit nil))))
   ;; This will unset region background
   ;; (region ((t (:background nil))))
   :hook
   ((dired-mode-hook . dired-hide-details-mode)))
+
+(use-package modus-themes)
+
+(use-package organic-green-theme
+  ;; :init (load-theme 'organic-green t)
+  :custom
+  (organic-green-boldless t)
+  (organic-green-version 2))
+
+(use-package ef-themes
+  :init (load-theme 'ef-spring t)
+        (set-face-italic-p 'italic nil)
+        (set-face-bold-p 'bold nil))
 
 (use-package emacs
   :ensure nil
@@ -444,15 +459,8 @@ Support for more interface parts will be added as I feel like it"
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
 
-;; (defface visible-mark-active ;; put this before (require 'visible-mark)
-;;            '((((type tty) (class mono)))
-;;              (t (:background "magenta"))) "")
-(defface visible-mark-active
-  '((((type tty) (class mono)))
-    (t (:background "light salmon"))) "")
-
 (use-package visible-mark
-  :init (setq visible-mark-faces `(visible-mark-face1))
+  :init (setq visible-mark-faces `(visible-mark-active))
   :config
   (global-visible-mark-mode 1))
 
@@ -601,11 +609,15 @@ source: https://stackoverflow.com/questions/24356401/how-to-append-multiple-elem
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("bbb13492a15c3258f29c21d251da1e62f1abb8bbd492386a673dcfab474186af" "7fd8b914e340283c189980cd1883dbdef67080ad1a3a9cc3df864ca53bdc89cf" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+   '("bc137acdbe14673fbba58c340a1d530055df1ef1624f83c479364832f2653cb3" "9d8d60e69db09062e759f008e59fac1d76618b09cddaf06cef093653c16f1e75" "ead62296b48539886f4abbefa54c7a3b294144d62fed60ee3cae08a2b1c1f0cf" "661c38fdd381265206a1d74a765ef1a219ed071c26082547aaacbb92064ffbf1" "077f3e88cee64127903484d97a54dbecc40f4f6b4b7e266b1023991d2c31d25a" "342ed922b461613b79c29624c4bed600466bef9270b0763bb81bcf7c7a011bea" "5d05e8db28c566fe2a4e8bd87a17bf89bbaddbdbe76fc15e1f67b1a61f80c621" "4edad12267c88bb57aab5a5c0d2e23740c6f552b6a36fb785dfb4e4725808eab" "9f986dcc0de26c1c8b6dfd749eb7351b1a3c8db31b3330a7dfdd25be1b47cb22" "a32c59022bb35d2f7b56960c2c5b8b07ec5b9a66c2a47de58f19ec74b834862e" "372905daccda4574b28e5d5b64d5a4059da9e3c5548abc274af04fe63adc1372" "9a977ddae55e0e91c09952e96d614ae0be69727ea78ca145beea1aae01ac78d2" "1594eb8fc081be254c7df7b2a37e9808f79c94863366da6d34bbe735519a30f5" "1d6b446390c172036395b3b87b75321cc6af7723c7545b28379b46cc1ae0af9e" "e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "b0cbcb2fa0c69ab36f4505fec9967969b73327f1b8564f9afface8afd216bc93" "8d146df8bd640320d5ca94d2913392bc6f763d5bc2bb47bed8e14975017eea91" "99d1e29934b9e712651d29735dd8dcd431a651dfbe039df158aa973461af003e" "fef6645175d4c5f9d573daca2ba4d7efa781be10967024d1d8e6ef0c4aa71437" "bbb13492a15c3258f29c21d251da1e62f1abb8bbd492386a673dcfab474186af" "7fd8b914e340283c189980cd1883dbdef67080ad1a3a9cc3df864ca53bdc89cf" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(fill-column-indicator ((t (:foreground "#CCCCCC" :weight normal))))
  '(font-lock-type-face ((t (:inherit nil))))
- '(tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face)))))
+ '(multi-magit-repo-heading ((t (:inherit magit-section-heading :box nil))))
+ '(speedbar-selected-face ((t (:foreground "#119911" :underline t))))
+ '(tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face))))
+ '(visible-mark-active ((t (:box (:line-width (2 . 2) :color "lightsalmon" :style flat-button))))))
