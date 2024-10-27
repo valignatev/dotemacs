@@ -358,6 +358,10 @@ Support for more interface parts will be added as I feel like it"
 ;;     (prescient-persist-mode 1)))
 
 
+(defvar my/deadgrep-global-path (pwd))
+(defun my/deadgrep-project-root-function ()
+  my/deadgrep-global-path)
+
 (defun my/deadgrep-vanilla ()
   (interactive)
   (setq deadgrep-extra-arguments '("--no-config"))
@@ -368,9 +372,15 @@ Support for more interface parts will be added as I feel like it"
   (setq deadgrep-extra-arguments '("--no-config" "-u"))
   (call-interactively 'deadgrep))
 
+(defun my/deadgrep-global ()
+  (interactive)
+  (let ((deadgrep-project-root-function #'my/deadgrep-project-root-function))
+    (call-interactively 'deadgrep)))
+
 (use-package deadgrep
   :bind (("<f5>" . my/deadgrep-vanilla)
-         ("<f6>" . my/deadgrep-u)))
+         ("<f6>" . my/deadgrep-u)
+         ("C-<f5>" . my/deadgrep-global)))
 
 (use-package dockerfile-mode
   :defer t)
@@ -443,9 +453,14 @@ Support for more interface parts will be added as I feel like it"
 (use-package go-mode
   :defer t)
 
+
+
 (defun setup-jai-mode ()
   (setq js-indent-level 4
-        indent-tabs-mode nil))
+        indent-tabs-mode nil
+        my/deadgrep-global-path (concat
+                                 (car (split-string (executable-find "jai") "/bin/jai"))
+                                 "/modules")))
 
 (use-package jai-mode
   :defer t
