@@ -358,26 +358,28 @@ Support for more interface parts will be added as I feel like it"
 ;;     (prescient-persist-mode 1)))
 
 
-(defvar my/deadgrep-global-path (pwd))
+(defvar my/deadgrep-global-path default-directory)
 (defun my/deadgrep-project-root-function ()
   my/deadgrep-global-path)
 
-(defun my/deadgrep-vanilla ()
-  (interactive)
-  (setq deadgrep-extra-arguments '("--no-config"))
-  (call-interactively 'deadgrep))
-
-(defun my/deadgrep-u ()
-  (interactive)
-  (setq deadgrep-extra-arguments '("--no-config" "-u"))
-  (call-interactively 'deadgrep))
-
-(defun my/deadgrep-global ()
-  (interactive)
-  (let ((deadgrep-project-root-function #'my/deadgrep-project-root-function))
-    (call-interactively 'deadgrep)))
-
 (use-package deadgrep
+
+  :config
+  (defun my/deadgrep-vanilla ()
+    (interactive)
+    (setq deadgrep-extra-arguments '("--no-config"))
+    (call-interactively 'deadgrep))
+
+  (defun my/deadgrep-u ()
+    (interactive)
+    (setq deadgrep-extra-arguments '("--no-config" "-u"))
+    (call-interactively 'deadgrep))
+
+  (defun my/deadgrep-global ()
+    (interactive)
+    (let ((deadgrep-project-root-function #'my/deadgrep-project-root-function))
+      (call-interactively 'deadgrep)))
+
   :bind (("<f5>" . my/deadgrep-vanilla)
          ("<f6>" . my/deadgrep-u)
          ("C-<f5>" . my/deadgrep-global)))
