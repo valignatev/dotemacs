@@ -240,9 +240,11 @@ Support for more interface parts will be added as I feel like it"
   (organic-green-version 2))
 
 (use-package ef-themes
-  :init (load-theme 'ef-spring t)
+  :init (load-theme 'ef-bio);;(load-theme 'ef-spring t)
         (set-face-italic-p 'italic nil)
-        (set-face-bold-p 'bold nil))
+        (set-face-bold-p 'bold nil)
+
+        (set-face-background 'default "#052525"))
 
 (use-package emacs
   :ensure nil
@@ -256,7 +258,8 @@ Support for more interface parts will be added as I feel like it"
          ("\\.js\\'" . typescript-ts-mode)
          ("\\.go\\'" . go-ts-mode)
          ("\\.html\\'" . html-mode))
-  :bind (("C-x t" . my/terminal-in-project-root))
+  :bind (("C-x t" . my/terminal-in-project-root)
+         ("<f7>" . recompile))
   :hook ((text-mode-hook . visual-line-mode)
          (org-mode-hook . visual-line-mode)
          (compilation-mode-hook . visual-line-mode)
@@ -467,6 +470,7 @@ Support for more interface parts will be added as I feel like it"
 (use-package jai-mode
   :defer t
   :ensure (jai-mode :host github :repo "krig/jai-mode")
+  :config (setq compile-command "jai build.jai")
   :hook ((jai-mode-hook . setup-jai-mode)))
 
 (ignore-errors
@@ -637,4 +641,4 @@ source: https://stackoverflow.com/questions/24356401/how-to-append-multiple-elem
  '(multi-magit-repo-heading ((t (:inherit magit-section-heading :box nil))))
  '(speedbar-selected-face ((t (:foreground "#119911" :underline t))))
  '(tree-sitter-hl-face:property ((t (:inherit 'font-lock-constant-face))))
- '(visible-mark-active ((t (:box (:line-width (2 . 2) :color "lightsalmon" :style flat-button))))))
+ '(visible-mark-active ((t (:background "light salmon")))))
