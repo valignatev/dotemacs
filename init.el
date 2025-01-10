@@ -1,4 +1,7 @@
 ;; -*- lexical-binding: t; -*-
+
+(load (format "%s%s" (file-name-directory user-init-file) "simpc-mode.el"))
+
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message user-login-name
       inhibit-default-init t
@@ -257,6 +260,8 @@ Support for more interface parts will be added as I feel like it"
          ("\\.ts\\'" . typescript-ts-mode)
          ("\\.js\\'" . typescript-ts-mode)
          ("\\.go\\'" . go-ts-mode)
+         ("\\.c\\'" . simpc-mode)
+         ("\\.h\\'" . simpc-mode)
          ("\\.html\\'" . html-mode))
   :bind (("C-x t" . my/terminal-in-project-root)
          ("<f7>" . recompile))
@@ -480,10 +485,10 @@ Support for more interface parts will be added as I feel like it"
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
 
-(use-package visible-mark
-  :init (setq visible-mark-faces `(visible-mark-active))
-  :config
-  (global-visible-mark-mode 1))
+;; (use-package visible-mark
+;;   :init (setq visible-mark-faces `(visible-mark-active))
+;;   :config
+;;   (global-visible-mark-mode 1))
 
 
 
