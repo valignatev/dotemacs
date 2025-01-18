@@ -463,19 +463,21 @@ Support for more interface parts will be added as I feel like it"
 (use-package go-mode
   :defer t)
 
-
-
 (defun setup-jai-mode ()
   (setq js-indent-level 4
         indent-tabs-mode nil
         my/deadgrep-global-path (concat
                                  (car (split-string (executable-find "jai") "/bin/jai"))
-                                 "/modules")))
+                                 "/modules"))
+)
 
 (use-package jai-mode
   :defer t
   :ensure (jai-mode :host github :repo "krig/jai-mode")
-  :config (setq compile-command "jai build.jai")
+  :config
+  (setq compile-command "jai build.jai")
+  (font-lock-add-keywords 'jai-mode
+                          '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\)\\>" . font-lock-keyword-face)))
   :hook ((jai-mode-hook . setup-jai-mode)))
 
 (ignore-errors
