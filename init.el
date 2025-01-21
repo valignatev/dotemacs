@@ -2,6 +2,8 @@
 
 (load (format "%s%s" (file-name-directory user-init-file) "simpc-mode.el"))
 
+(global-unset-key (kbd "C-x C-c"))
+(global-unset-key (kbd "C-h h"))
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message user-login-name
       inhibit-default-init t
@@ -466,10 +468,7 @@ Support for more interface parts will be added as I feel like it"
 (defun setup-jai-mode ()
   (setq js-indent-level 4
         indent-tabs-mode nil
-        my/deadgrep-global-path (concat
-                                 (car (split-string (executable-find "jai") "/bin/jai"))
-                                 "/modules"))
-)
+        my/deadgrep-global-path (car (split-string (executable-find "jai") "/bin/jai"))))
 
 (use-package jai-mode
   :defer t
