@@ -54,7 +54,7 @@
 
 ;; Font settings
 (defvar font-name "Hack")
-(defvar font-size (if IS-WINDOWS 13 12))
+(defvar font-size (if IS-WINDOWS 14 18))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
 (column-number-mode 1)
@@ -264,7 +264,8 @@ Support for more interface parts will be added as I feel like it"
          ("\\.go\\'" . go-ts-mode)
          ("\\.c\\'" . simpc-mode)
          ("\\.h\\'" . simpc-mode)
-         ("\\.html\\'" . html-mode))
+         ("\\.html\\'" . html-mode)
+         ("\\.env\\'" . conf-mode))
   :bind (("C-x t" . my/terminal-in-project-root)
          ("<f7>" . recompile))
   :hook ((text-mode-hook . visual-line-mode)
@@ -472,11 +473,11 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package jai-mode
   :defer t
-  :ensure (jai-mode :host github :repo "krig/jai-mode")
+  :ensure (jai-mode :host github :repo "valignatev/jai-mode")
   :config
   (setq compile-command "jai build.jai")
   (font-lock-add-keywords 'jai-mode
-                          '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\)\\>" . font-lock-keyword-face)))
+                          '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\|push_my_context\\)\\>" . font-lock-keyword-face)))
   :hook ((jai-mode-hook . setup-jai-mode)))
 
 (ignore-errors
