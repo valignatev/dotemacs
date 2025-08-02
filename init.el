@@ -83,13 +83,18 @@
   (interactive)
   (find-file user-init-file))
 
+(defun my/project-root-or-default-dir ()
+  (if-let ((proj (project-current)))
+      (project-root proj)
+    default-directory))
+
 (defun my/terminal-in-project-root (arg)
   "Opens the $TERMINAL in project root.
 With ARG, opens in in the current working directory"
   (interactive "P")
   (let ((default-directory
           (if arg default-directory
-            (car (cdr (cdr (project-current)))))))
+            (my/project-root-or-default-dir))))
     (if terminal-args (start-process "terminal" nil terminal terminal-args)
       (start-process "terminal" nil terminal))))
 
@@ -231,8 +236,8 @@ Support for more interface parts will be added as I feel like it"
   (setq spacemacs-theme-comment-bg nil
         spacemacs-theme-comment-italics t)
   ;; (load-theme 'spacemacs-light t)
-  :custom-face
-  (font-lock-type-face ((t (:inherit nil))))
+  ;; :custom-face
+  ;; (font-lock-type-face ((t (:inherit nil))))
   ;; This will unset region background
   ;; (region ((t (:background nil))))
   :hook
@@ -247,11 +252,17 @@ Support for more interface parts will be added as I feel like it"
   (organic-green-version 2))
 
 (use-package ef-themes
-  :init (load-theme 'ef-bio);;(load-theme 'ef-spring t)
-        (set-face-italic-p 'italic nil)
-        (set-face-bold-p 'bold nil)
+  :init
+  (load-theme 'ef-bio);;(load-theme 'ef-spring t)
+  (set-face-italic-p 'italic nil)
+  (set-face-bold-p 'bold nil)
 
-        (set-face-background 'default "#052525"))
+  (set-face-background 'default "#052525")
+  ;; (set-face-foreground 'font-lock-function-name-face
+  ;;                      (face-foreground 'font-lock-type-face))
+  ;; (set-face-foreground 'font-lock-function-call-face
+  ;;                      (face-foreground 'default))
+  )
 
 (use-package emacs
   :ensure nil
@@ -267,6 +278,8 @@ Support for more interface parts will be added as I feel like it"
          ("\\.c\\'" . simpc-mode)
          ("\\.h\\'" . simpc-mode)
          ("\\.html\\'" . html-mode)
+         ;; ("\\.jai\\'" . jai-ts-mode)
+         ("\\.jai\\'" . jai-mode)
          ("\\.env\\'" . conf-mode)
          ("\\.env.local\\'" . conf-mode))
   :bind (("C-x t" . my/terminal-in-project-root)
@@ -290,7 +303,7 @@ Support for more interface parts will be added as I feel like it"
 
 ;; Magic garbage collector hack
 ;; It's kinda small so maybe makes sense to just copy/paste
-;; it into a config instead of installing it with straight
+;; it into a config instead of installing it
 (use-package gcmh
   :init
   (setq gcmh-idle-delay 5
@@ -471,9 +484,30 @@ Support for more interface parts will be added as I feel like it"
   :config (setq indent-tabs-mode nil)
   :hook ((odin-mode-hook . (lambda () (setq js-indent-level 4
                                             indent-tabs-mode nil)))))
-
 (use-package go-mode
   :defer t)
+
+
+(defun setup-jai-mode ()
+  (setq my/deadgrep-global-path (car (split-string (executable-find "jai") "/bin/jai")))
+  )
+
+;; (use-package jai-ts-mode
+;;   :init
+;;   (require 'compile)
+;;   :defer t
+;;   :ensure (jai-ts-mode :host github :repo "cpoile/jai-ts-mode")
+;;   :config
+;;   (setq compile-command "jai build.jai")
+;;   :mode "\\.jai\\'"
+;;   :hook ((jai-ts-mode-hook . setup-jai-mode)))
+
+;; (use-package dumb-jump
+;;   :init
+;;   (setq dumb-jump-prefer-searcher 'rg
+;;         dumb-jump-force-searcher 'rg
+;;         dumb-jump-rg-search-args "--pcre2 --type-add \"jai:*.jai\"")
+;;   :hook (('xref-backend-functions . #'dumb-jump-xref-activate)))
 
 (defun setup-jai-mode ()
   (setq js-indent-level 4
@@ -484,7 +518,16 @@ Support for more interface parts will be added as I feel like it"
   :defer t
   :ensure (jai-mode :host github :repo "valignatev/jai-mode")
   :config
-  (setq compile-command "jai build.jai")
+  (setq compile-command
+        (concat "jai "
+                (let* ((root (my/project-root-or-default-dir))
+                       (build-jai (concat root "build.jai"))
+                       (main-jai (concat root "main.jai"))
+                       (current-jai (buffer-file-name)))
+                  (cond
+                   ((file-exists-p build-jai) build-jai)
+                   ((file-exists-p main-jai) main-jai)
+                   (t current-jai)))))
   (font-lock-add-keywords 'jai-mode
                           '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\|push_my_context\\)\\>" . font-lock-keyword-face)))
   :hook ((jai-mode-hook . setup-jai-mode)))
