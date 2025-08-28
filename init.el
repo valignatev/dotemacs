@@ -505,29 +505,29 @@ Support for more interface parts will be added as I feel like it"
 ;; (use-package dumb-jump
 ;;   :init
 ;;   (setq dumb-jump-prefer-searcher 'rg
-;;         dumb-jump-force-searcher 'rg
-;;         dumb-jump-rg-search-args "--pcre2 --type-add \"jai:*.jai\"")
-;;   :hook (('xref-backend-functions . #'dumb-jump-xref-activate)))
+;;         dumb-jump-force-searcher 'rg)
+;;   :hook ((xref-backend-functions . dumb-jump-xref-activate)))
 
 (defun setup-jai-mode ()
   (setq js-indent-level 4
         indent-tabs-mode nil
-        my/deadgrep-global-path (car (split-string (executable-find "jai") "/bin/jai"))))
+        my/deadgrep-global-path (car (split-string (executable-find "jai") "/bin/jai")))
+  (setq-local compile-command
+              (concat "jai "
+                      (let* ((root (my/project-root-or-default-dir))
+                             (build-jai (concat root "build.jai"))
+                             (main-jai (concat root "main.jai"))
+                             (current-jai (buffer-file-name)))
+                        (cond
+                         ((file-exists-p build-jai) build-jai)
+                         ((file-exists-p main-jai) main-jai)
+                         (t current-jai))))))
 
 (use-package jai-mode
   :defer t
   :ensure (jai-mode :host github :repo "valignatev/jai-mode")
   :config
-  (setq compile-command
-        (concat "jai "
-                (let* ((root (my/project-root-or-default-dir))
-                       (build-jai (concat root "build.jai"))
-                       (main-jai (concat root "main.jai"))
-                       (current-jai (buffer-file-name)))
-                  (cond
-                   ((file-exists-p build-jai) build-jai)
-                   ((file-exists-p main-jai) main-jai)
-                   (t current-jai)))))
+  
   (font-lock-add-keywords 'jai-mode
                           '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\|push_my_context\\)\\>" . font-lock-keyword-face)))
   :hook ((jai-mode-hook . setup-jai-mode)))
