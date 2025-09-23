@@ -344,7 +344,8 @@ Support for more interface parts will be added as I feel like it"
         evil-vsplit-window-right t
         evil-split-window-below t
         evil-undo-system 'undo-redo
-        evil-symbol-word-search t)
+        evil-symbol-word-search t
+        evil-kill-on-visual-paste nil)
   :config
   (evil-set-initial-state 'prog-mode 'normal)
   (evil-set-initial-state 'text-mode 'normal)
