@@ -60,6 +60,15 @@
 (defvar font-size (if IS-WINDOWS 14 17))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
+; Regardless of colorscheme, disable italic and bold
+(defun my/disable-bold-and-italic (theme &optional no-confirm no-enable)
+  (mapc #'disable-theme
+        (remq theme custom-enabled-themes))
+  (set-face-italic 'italic nil)
+  (set-face-bold 'bold nil))
+
+(advice-add 'load-theme :after #'my/disable-bold-and-italic)
+
 (column-number-mode 1)
 (tool-bar-mode 0)
 (menu-bar-mode 0)
@@ -256,15 +265,12 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package ef-themes
   :init
-  (load-theme 'ef-bio);;(load-theme 'ef-spring t)
-  (set-face-italic-p 'italic nil)
-  (set-face-bold-p 'bold nil)
+  (setq ef-bio-palette-overrides
+        '((bg-main "#052525")))
 
-  (set-face-background 'default "#052525")
-  ;; (set-face-foreground 'font-lock-function-name-face
-  ;;                      (face-foreground 'font-lock-type-face))
-  ;; (set-face-foreground 'font-lock-function-call-face
-  ;;                      (face-foreground 'default))
+  :config
+  (load-theme 'ef-bio)
+  ;;(load-theme 'ef-spring t)
   )
 
 (use-package emacs
