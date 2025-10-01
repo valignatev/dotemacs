@@ -174,7 +174,7 @@ Support for more interface parts will be added as I feel like it"
             (my/scale-interface old-frame-dpi current-frame-dpi)))))
 
 ;; elpaca boilerplate
-(defvar elpaca-installer-version 0.10)
+(defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -209,7 +209,7 @@ Support for more interface parts will be added as I feel like it"
   (unless (require 'elpaca-autoloads nil t)
     (require 'elpaca)
     (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
 
@@ -265,12 +265,20 @@ Support for more interface parts will be added as I feel like it"
 
 (use-package ef-themes
   :init
-  (setq ef-bio-palette-overrides
-        '((bg-main "#052525")))
+  ;; (setq ef-bio-palette-overrides
+  ;;       '((bg-main "#131313")))
+
+  (setq ef-dream-palette-overrides
+        '((bg-main "#131015")
+          (bg-hl-line "#2e1a3a")
+          (yellow-cooler "#ff9f0a")))
 
   :config
-  (load-theme 'ef-bio)
-  ;;(load-theme 'ef-spring t)
+  (load-theme 'ef-dream)
+  ;; (load-theme 'ef-winter)
+  ;; (load-theme 'ef-trio-dark)
+  ;; (load-theme 'ef-spring t)
+  ;; (load-theme 'ef-bio t)
   )
 
 (use-package emacs
