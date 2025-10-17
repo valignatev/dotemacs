@@ -270,8 +270,15 @@ Support for more interface parts will be added as I feel like it"
 
   (setq ef-dream-palette-overrides
         '((bg-main "#131015")
-          (bg-hl-line "#2e1a3a")
-          (yellow-cooler "#ff9f0a")))
+          (bg-hl-line "#232224")
+          (fg-mode-line "#f2ddcf")
+          (bg-mode-line "#472b00")
+          (yellow-cooler "#ff9f0a")
+          ;; (bg-hl-line "#2e1a3a")
+          ;; (bg-hl-line "#352102")
+          ;; (bg-hl-line "#3b393e")
+          ;; (bg-mode-line "#5E4527")
+          ))
 
   :config
   (load-theme 'ef-dream)
@@ -280,6 +287,11 @@ Support for more interface parts will be added as I feel like it"
   ;; (load-theme 'ef-spring t)
   ;; (load-theme 'ef-bio t)
   )
+
+(defun my/recompile ()
+  (interactive)
+  (cd (my/project-root-or-default-dir))
+  (recompile))
 
 (use-package emacs
   :ensure nil
@@ -300,7 +312,7 @@ Support for more interface parts will be added as I feel like it"
          ("\\.env\\'" . conf-mode)
          ("\\.env.local\\'" . conf-mode))
   :bind (("C-x t" . my/terminal-in-project-root)
-         ("<f7>" . recompile)
+         ("<f7>" . my/recompile)
          ("S-<wheel-up>" . (lambda () (interactive) (scroll-right 5)))
          ("S-<wheel-down>" . (lambda () (interactive) (scroll-left 5))))
   :hook ((text-mode-hook . visual-line-mode)
@@ -541,14 +553,18 @@ Support for more interface parts will be added as I feel like it"
                          ((file-exists-p main-jai) main-jai)
                          (t current-jai))))))
 
+(defun jai-set-project-root-cwd ()
+  (cd (my/project-root-or-default-dir)))
+
 (use-package jai-mode
   :defer t
   :ensure (jai-mode :host github :repo "valignatev/jai-mode")
   :config
   
-  (font-lock-add-keywords 'jai-mode
-                          '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\|push_my_context\\)\\>" . font-lock-keyword-face)))
-  :hook ((jai-mode-hook . setup-jai-mode)))
+  ;; (font-lock-add-keywords 'jai-mode
+  ;;                         '(("\\<\\(or_else\\|or_return\\|or_continue\\|or_break\\|push_my_context\\)\\>" . font-lock-keyword-face)))
+  :hook ((jai-mode-hook . setup-jai-mode)
+         (compilation-mode-hook . jai-set-project-root-cwd)))
 
 (ignore-errors
   (require 'ansi-color)
