@@ -57,7 +57,7 @@
 
 ;; Font settings
 (defvar font-name "Hack")
-(defvar font-size (if IS-WINDOWS 14 17))
+(defvar font-size (if IS-WINDOWS 14 14))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
 ; Regardless of colorscheme, disable italic and bold
@@ -479,7 +479,11 @@ Support for more interface parts will be added as I feel like it"
 ;; I need to figure out version locking idk
 ;; Needed for eglot
 (use-package eldoc
-  :ensure t)
+  :defer t)
+
+;; Same shit
+(use-package flymake
+  :defer t)
 
 ;; Needed for eglot
 (use-package jsonrpc
