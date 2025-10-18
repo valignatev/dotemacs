@@ -55,9 +55,14 @@
 ;; a gui window with these args
 (defvar terminal-args (if IS-WINDOWS "Start-Process PowerShell" nil))
 
+(defun my/default-font-size ()
+  (cond
+   ((< (car (frame-monitor-attribute 'mm-size)) 500) 13)
+   (t 14)))
+
 ;; Font settings
 (defvar font-name "Hack")
-(defvar font-size (if IS-WINDOWS 14 14))
+(defvar font-size (my/default-font-size))
 (set-frame-font (format "%s-%d" font-name font-size) t t)
 
 ; Regardless of colorscheme, disable italic and bold
