@@ -408,23 +408,21 @@ Support for more interface parts will be added as I feel like it"
   ;; package.
   (marginalia-mode))
 
+(use-package consult
+  ;; :ensure t
+  :after (vertico xref)
+  :config
+  (setq xref-show-xrefs-function #'consult-xref)
+  (setq xref-show-definitions-function #'consult-xref))
+
+(use-package consult-eglot
+  :after eglot)
+
 (use-package orderless
   :init
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
-
-;; Remove from now to test orderless + savehist
-;; plus can't load the package for some reason:
-;; https://github.com/radian-software/straight.el/issues/1089
-;; (use-package prescient
-;;   :config
-;;   (use-package vertico-prescient
-;;     :after (vertico)
-;;     :config
-;;     (vertico-prescient-mode 1)
-;;     (prescient-persist-mode 1)))
-
 
 (defvar my/deadgrep-global-path default-directory)
 (defun my/deadgrep-project-root-function ()
