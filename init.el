@@ -58,7 +58,7 @@
 (defun my/default-font-size ()
   (cond
    ((< (car (frame-monitor-attribute 'mm-size)) 500) 13)
-   (t 14)))
+   (t 16)))
 
 ;; Font settings
 (defvar font-name "Hack")
