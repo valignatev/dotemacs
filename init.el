@@ -525,10 +525,6 @@ Support for more interface parts will be added as I feel like it"
   :defer t)
 
 
-(defun setup-jai-mode ()
-  (setq my/deadgrep-global-path (car (split-string (executable-find "jai") "/bin/jai")))
-  )
-
 ;; (use-package jai-ts-mode
 ;;   :init
 ;;   (require 'compile)
